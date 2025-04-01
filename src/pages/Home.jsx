@@ -1,27 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Carousel from '../components/Carousel';
 import SearchFilters from '../components/SearchFilters';
 import JobCards from '../components/JobCards';
 import CareerGuides from '../components/CareerGuides';
-import JobMarket from '../components/JobMarket'; // Import thành phần JobMarket
+import JobMarket from '../components/JobMarket';
 import { jobs, guides } from '../data/data';
 
 const Home = () => {
     const [currentPage, setCurrentPage] = useState(0);
+    const [filteredJobs, setFilteredJobs] = useState(jobs);
     const jobsPerPage = 9;
-    const displayedJobs = jobs.slice(
+    const displayedJobs = filteredJobs.slice(
         currentPage * jobsPerPage,
         currentPage * jobsPerPage + jobsPerPage
     );
-    const totalPages = Math.ceil(jobs.length / jobsPerPage);
+    const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
-    // Tự động chuyển trang sau 5 giây
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentPage((prevPage) => (prevPage + 1) % totalPages);
-        }, 10000);
-        return () => clearInterval(interval);
-    }, [totalPages]);
+    const handleSearch = ({ searchTerm, jobType, location }) => {
+        const filtered = jobs.filter((job) => {
+            return (
+                (!searchTerm || job.title.toLowerCase().includes(searchTerm.toLowerCase())) &&
+                (!jobType || job.title.includes(jobType)) &&
+                (!location || job.location.includes(location))
+            );
+        });
+        setFilteredJobs(filtered);
+        setCurrentPage(0); // Reset về trang đầu tiên
+    };
 
     const industries = [
         { name: 'Bán sỉ - Bán lẻ - Quản lý cửa hàng', jobs: '3,107 việc', icon: '🛒' },
@@ -41,7 +46,7 @@ const Home = () => {
 
             <div className="relative -mt-16 z-10">
                 <div className="bg-white bg-opacity-80 shadow-lg rounded-lg p-6 mx-auto max-w-[1300px]">
-                    <SearchFilters />
+                    <SearchFilters onSearch={handleSearch} />
                     <div className="mt-4">
                         <h2 className="text-lg font-bold text-gray-800 mb-4">Nghề nghiệp nổi bật</h2>
                         <ul className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -78,7 +83,6 @@ const Home = () => {
 
             {/* Career Guides Section */}
             <CareerGuides guides={guides} />
-            {/* Thêm thành phần JobMarket */}
             <div className="mt-8">
                 <JobMarket />
             </div>

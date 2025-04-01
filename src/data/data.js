@@ -9,7 +9,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 22,
         title: 'Thợ Sửa Chữa Ô Tô (Bình Dương)',
         company: 'Công Ty TNHH TM DV Huỳnh Gia Phát',
         location: 'Bình Dương',
@@ -18,7 +18,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 3,
         title: '[HCM] Tổng Đài Viên Tư Vấn',
         company: 'Công Ty Tài Chính TNHH Ngân Hàng Việt Nam Thịnh Vượng',
         location: 'TP.HCM',
@@ -27,7 +27,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 4,
         title: 'Trưởng Bộ Phận Kho',
         company: 'Công Ty Cổ Phần Inox Diệu Thịnh',
         location: 'Long An',
@@ -36,7 +36,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 5,
         title: 'Nhân Viên Kế Hoạch Mua Hàng - Bình Dương',
         company: 'Công Ty TNHH Sữa Nutribiz',
         location: 'Bình Dương',
@@ -45,7 +45,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 6,
         title: 'Kỹ Sư Vẽ Shopdrawing - Đi Làm Ngay',
         company: 'Công Ty Cổ Phần Investcorp 16',
         location: 'Hà Nội',
@@ -54,7 +54,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 7,
         title: 'Chuyên Viên IT - Thu Nhập Trên 15 Triệu',
         company: 'Công Ty TNHH Dịch Vụ Ăn Uống Tinh Hoa Biển Dương',
         location: 'TP.HCM',
@@ -63,7 +63,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 8,
         title: 'Tài Xế Riêng Cho Giám Đốc - Đi Làm Ngay',
         company: 'Công Ty TNHH Cnsl Industrial',
         location: 'Bình Phước',
@@ -72,7 +72,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 9,
         title: 'Nhân Viên Điều Trị (Bác Sĩ Thú Y)',
         company: 'Công Ty TNHH MTV Bò Sữa Việt Nam',
         location: 'TP.HCM',
@@ -81,7 +81,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 10,
         title: 'Frontend Developer',
         company: 'Tech Company',
         location: 'Hà Nội',
@@ -90,7 +90,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 11,
         title: 'Frontend Developer',
         company: 'Tech Company',
         location: 'Hà Nội',
@@ -99,7 +99,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 12,
         title: 'Frontend Developer',
         company: 'Tech Company',
         location: 'Hà Nội',
@@ -108,7 +108,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 13,
         title: 'Frontend Developer',
         company: 'Tech Company',
         location: 'Hà Nội',
@@ -117,7 +117,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 14,
         title: 'Frontend Developer',
         company: 'Tech Company',
         location: 'Hà Nội',
@@ -126,7 +126,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 15,
         title: 'Frontend Developer',
         company: 'Tech Company',
         location: 'Hà Nội',
@@ -135,7 +135,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 1,
+        id: 16,
         title: 'Frontend Developer',
         company: 'Tech Company',
         location: 'Hà Nội',
@@ -144,7 +144,7 @@ export const jobs = [
         hot: true,
     },
     {
-        id: 2,
+        id: 17,
         title: 'Backend Developer',
         company: 'Software Solutions',
         location: 'TP. Hồ Chí Minh',
@@ -153,7 +153,7 @@ export const jobs = [
         hot: false,
     },
     {
-        id: 3,
+        id: 18,
         title: 'UI/UX Designer',
         company: 'Creative Studio',
         location: 'Đà Nẵng',

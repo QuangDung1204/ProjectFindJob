@@ -1,16 +1,20 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import Layout from './components/Layout';
 import Home from './pages/Home';
+import Apply from './pages/Apply';
+import Header from './components/Header';
+import Dashboard from './pages/Dashboard';
 
 const App = () => {
   return (
-    <Layout>
-
+    <>
+      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/apply" element={<Apply />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </Layout>
+    </>
   );
 };
 
