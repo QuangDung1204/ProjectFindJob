@@ -1,180 +1,259 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
-import { useNavigate } from 'react-router-dom';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { FacebookLogin } from 'react-facebook-login-lite';
 
 const LoginModal = ({ isOpen, onClose }) => {
-    const [isRegister, setIsRegister] = useState(false); // Trạng thái chuyển đổi giữa Đăng nhập và Đăng ký
     const [email, setEmail] = useState('');
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [step, setStep] = useState(1); // Bước 1: Đăng nhập, Bước 2: Hoàn tất đăng ký, Bước 3: Nhập mã code
+    const [fullName, setFullName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState(''); // Chỉ dùng cho Đăng ký
-    const [fullName, setFullName] = useState(''); // Họ và tên
-    const [agreeTerms, setAgreeTerms] = useState(false); // Đồng ý với điều khoản
-    const [error, setError] = useState('');
+    const [birthYear, setBirthYear] = useState(''); // Thay đổi từ ngày sinh sang năm sinh
+    const [gender, setGender] = useState('FEMALE'); // Mặc định là FEMALE
+    const [address, setAddress] = useState(''); // Địa chỉ
     const [isLoading, setIsLoading] = useState(false);
-    const { login } = useAuth(); // Lấy hàm login từ AuthContext
-    // const navigate = useNavigate(); // Hook để chuyển hướng
+    const [verificationCode, setVerificationCode] = useState(''); // Mã code người dùng nhập
+    const [generatedCode, setGeneratedCode] = useState(''); // Mã code được tạo
 
-    const handleLogin = async () => {
-        if (!email || !password) {
-            setError('Vui lòng nhập email và mật khẩu!');
-            return;
-        }
-
-        setIsLoading(true);
-        setError('');
-
-        try {
-            console.log('Dữ liệu gửi đi:', { email, password });
-
-            // Giả lập API
-            await new Promise((resolve) => setTimeout(resolve, 1000)); // Chờ 1 giây
-            if (email === 'test@gmail.com' && password === '123456') {
-                const mockUser = { id: 1, email, fullName: 'Nguyen Van A' };
-                const mockToken = 'fake-jwt-token';
-                console.log('Đăng nhập thành công:', mockUser);
-
-                login(mockUser);
-                localStorage.setItem('token', mockToken); // Lưu token vào localStorage
-                onClose();
-            } else {
-                throw new Error('Email hoặc mật khẩu không đúng!');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setIsLoading(false);
-        }
+    const handleGoogleLoginSuccess = (response) => {
+        console.log('Google Login Success:', response);
+        // Thêm logic xử lý đăng nhập thành công tại đây
     };
 
-    const handleRegister = async () => {
-        if (!email || !password || !confirmPassword || !fullName) {
-            setError('Vui lòng điền đầy đủ thông tin!');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            setError('Mật khẩu xác nhận không khớp!');
-            return;
-        }
-
-        if (!agreeTerms) {
-            setError('Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách bảo mật!');
-            return;
-        }
-
-        setIsLoading(true);
-        setError('');
-
-        try {
-            console.log('Dữ liệu gửi đi:', { email, password, fullName });
-
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            if (email === 'newuser@example.com') {
-                const mockUser = { id: 2, email, fullName };
-                const mockToken = 'fake-jwt-token';
-                console.log('Đăng ký thành công:', mockUser);
-
-                login(mockUser);
-                localStorage.setItem('token', mockToken);
-                onClose();
-            } else {
-                throw new Error('Email đã tồn tại!');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setIsLoading(false);
-        }
+    const handleGoogleLoginError = () => {
+        console.error('Google Login Failed');
     };
 
     if (!isOpen) return null;
+
+    const handleEmailLogin = () => {
+        if (!agreeTerms) {
+            alert('Bạn cần đồng ý với các điều khoản để tiếp tục.');
+            return;
+        }
+        if (!email || !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+            alert('Vui lòng nhập địa chỉ Gmail hợp lệ.');
+            return;
+        }
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+            setStep(2);
+        }, 1000);
+    };
+
+    const handleCompleteRegistration = async () => {
+        if (!fullName || !phoneNumber || !password || !birthYear || !email || !address) {
+            alert('Vui lòng nhập đầy đủ thông tin.');
+            return;
+        }
+
+        if (!isValidAge(birthYear)) {
+            alert('Bạn phải đủ 16 tuổi để tiếp tục.');
+            return;
+        }
+
+        // Tính tuổi từ năm sinh
+        const age = new Date().getFullYear() - birthYear;
+
+        // Dữ liệu gửi đến backend
+        const userData = {
+            name: fullName,
+            email: email,
+            password: password,
+            age: age,
+            gender: gender,
+            address: address,
+        };
+
+        try {
+            const response = await fetch('https://your-backend-api.com/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert('Đăng ký thành công!');
+            } else {
+                alert(`Lỗi: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Lỗi khi gửi dữ liệu:', error);
+            alert('Đã xảy ra lỗi. Vui lòng thử lại.');
+        }
+    };
+
+    // Hàm kiểm tra độ tuổi
+    const isValidAge = (birthYear) => {
+        const currentYear = new Date().getFullYear();
+        const age = currentYear - birthYear;
+        return age >= 16; // Kiểm tra người dùng đủ 16 tuổi
+    };
+
+    const handleVerifyCode = () => {
+        if (verificationCode === generatedCode) {
+            alert('Xác thực thành công!');
+            // Thêm logic xử lý sau khi xác thực thành công
+        } else {
+            alert('Mã xác thực không đúng. Vui lòng thử lại.');
+        }
+    };
+
+    const handleBack = () => {
+        setStep(step - 1); // Quay lại bước trước
+    };
 
     return (
         <>
             <div className="fixed inset-0 bg-transparent bg-opacity-50 backdrop-blur-sm z-40"></div>
 
             <div className="fixed inset-0 flex items-center justify-center z-50">
-                <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg relative">
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                    >
-                        ✕
-                    </button>
-                    <h2 className="text-2xl font-bold mb-4">
-                        {isRegister ? 'Đăng ký' : 'Đăng nhập'}
-                    </h2>
-                    <div className="flex justify-center space-x-4 mb-4">
+                <div className="bg-white w-full max-w-4xl p-6 rounded-lg shadow-lg relative flex">
+                    <div className="w-full md:w-1/2 p-6">
                         <button
-                            onClick={() => setIsRegister(false)}
-                            className={`px-4 py-2 rounded-lg ${!isRegister ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                            onClick={onClose}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
                         >
-                            Đăng nhập
+                            ✕
                         </button>
-                        <button
-                            onClick={() => setIsRegister(true)}
-                            className={`px-4 py-2 rounded-lg ${isRegister ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-                        >
-                            Đăng ký
-                        </button>
-                    </div>
-                    <div className="flex flex-col space-y-4">
-                        {isRegister && (
-                            <input
-                                type="text"
-                                placeholder="Họ và tên"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
+                        {step === 1 && (
+                            <>
+                                <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
+                                <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+                                    <div className="flex flex-col space-y-4">
+                                        <GoogleLogin
+                                            onSuccess={handleGoogleLoginSuccess}
+                                            onError={handleGoogleLoginError}
+                                            useOneTap
+                                        />
+                                        <FacebookLogin
+                                            appId="YOUR_FACEBOOK_APP_ID"
+                                            autoLoad={true}
+                                            fields="name,email,picture"
+                                            onSuccess={(response) => console.log('Facebook Login Success:', response)}
+                                            onFailure={(error) => console.error('Facebook Login Failed:', error)}
+                                            buttonText="Đăng nhập bằng Facebook"
+                                        />
+                                    </div>
+                                </GoogleOAuthProvider>
+
+                                <div className="mt-6">
+                                    <p className="text-center text-gray-500 mb-4">Hoặc tiếp tục với Gmail</p>
+                                    <input
+                                        type="email"
+                                        placeholder="Nhập địa chỉ Gmail"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    />
+                                    <div className="flex items-start mt-4">
+                                        <input
+                                            type="checkbox"
+                                            checked={agreeTerms}
+                                            onChange={(e) => setAgreeTerms(e.target.checked)}
+                                            className="mt-1 mr-2"
+                                        />
+                                        <p className="text-sm text-gray-600">
+                                            Bằng việc nhấn nút tiếp tục, tôi đồng ý chia sẻ thông tin cá nhân của mình
+                                            với nhà tuyển dụng theo các{' '}
+                                            <a href="#" className="text-blue-600 hover:underline">
+                                                Điều khoản sử dụng
+                                            </a>
+                                            ,{' '}
+                                            <a href="#" className="text-blue-600 hover:underline">
+                                                Chính sách bảo mật
+                                            </a>{' '}
+                                            và{' '}
+                                            <a href="#" className="text-blue-600 hover:underline">
+                                                Chính sách dữ liệu cá nhân
+                                            </a>{' '}
+                                            của Việc Làm 24h.
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={handleEmailLogin}
+                                        className="w-full mt-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+                                    >
+                                        {isLoading ? 'Đang tải...' : 'Tiếp tục'}
+                                    </button>
+                                </div>
+                            </>
                         )}
-                        <input
-                            type="email"
-                            placeholder="Địa chỉ Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-2 border rounded-lg"
-                        />
-                        <input
-                            type="password"
-                            placeholder="Mật khẩu"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-2 border rounded-lg"
-                        />
-                        {isRegister && (
-                            <input
-                                type="password"
-                                placeholder="Xác nhận mật khẩu"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
+                        {step === 2 && (
+                            <>
+                                <button
+                                    onClick={handleBack}
+                                    className="absolute top-2 left-2 text-gray-500 hover:text-gray-700"
+                                >
+                                    ← Quay lại
+                                </button>
+                                <h2 className="text-2xl font-bold mb-2 text-center">
+                                    Hoàn tất việc đăng ký với email
+                                </h2>
+                                <p className="text-center text-purple-600 font-bold mb-6">
+                                    {email}
+                                </p>
+                                <p className="text-center text-gray-500 mb-6">
+                                    để trải nghiệm các tính năng của Vieclam24h.vn
+                                </p>
+                                <div className="flex flex-col space-y-4">
+                                    <input
+                                        type="text"
+                                        placeholder="Họ và tên"
+                                        value={fullName}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Số điện thoại"
+                                        value={phoneNumber}
+                                        onChange={(e) => setPhoneNumber(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    />
+                                    <input
+                                        type="password"
+                                        placeholder="Mật khẩu"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Năm sinh (VD: 2005)"
+                                        value={birthYear}
+                                        onChange={(e) => setBirthYear(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    />
+                                    <select
+                                        onChange={(e) => setGender(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    >
+                                        <option value="FEMALE">Nữ</option>
+                                        <option value="MALE">Nam</option>
+                                        <option value="OTHER">Khác</option>
+                                    </select>
+                                    <input
+                                        type="text"
+                                        placeholder="Địa chỉ"
+                                        value={address}
+                                        onChange={(e) => setAddress(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    />
+                                    <button
+                                        onClick={handleCompleteRegistration}
+                                        className="w-full mt-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+                                    >
+                                        Tiếp tục
+                                    </button>
+                                </div>
+                            </>
                         )}
-                        {isRegister && (
-                            <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={agreeTerms}
-                                    onChange={(e) => setAgreeTerms(e.target.checked)}
-                                    className="mr-2"
-                                />
-                                <label className="text-sm text-gray-600">
-                                    Tôi đã đọc và đồng ý với{' '}
-                                    <a href="#" className="text-blue-600 hover:underline">Điều khoản dịch vụ</a> và{' '}
-                                    <a href="#" className="text-blue-600 hover:underline">Chính sách bảo mật</a> của Việc Làm 24h.
-                                </label>
-                            </div>
-                        )}
-                        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-                        <button
-                            onClick={isRegister ? handleRegister : handleLogin}
-                            className={`w-full py-2 rounded-lg ${isLoading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
-                                } text-white`}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? 'Đang xử lý...' : isRegister ? 'Đăng ký' : 'Đăng nhập'}
-                        </button>
                     </div>
                 </div>
             </div>

@@ -4,12 +4,19 @@ import { IoBagCheck } from "react-icons/io5";
 import { FaMapMarkerAlt } from "react-icons/fa";
 
 const SearchFilters = ({ onSearch }) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [jobType, setJobType] = useState('');
-    const [location, setLocation] = useState('');
+    const [filters, setFilters] = useState({
+        searchTerm: '',
+        jobType: '',
+        location: '',
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFilters((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleSearch = () => {
-        onSearch({ searchTerm, jobType, location });
+        onSearch(filters);
     };
 
     return (
@@ -18,17 +25,19 @@ const SearchFilters = ({ onSearch }) => {
                 <CiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
                 <input
                     type="text"
+                    name="searchTerm"
                     placeholder="Nhập vị trí muốn ứng tuyển"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={filters.searchTerm}
+                    onChange={handleChange}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </div>
             <div className="relative w-full md:w-1/4">
                 <IoBagCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
                 <select
-                    value={jobType}
-                    onChange={(e) => setJobType(e.target.value)}
+                    name="jobType"
+                    value={filters.jobType}
+                    onChange={handleChange}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     <option value="">Lọc theo nghề nghiệp</option>
@@ -40,8 +49,9 @@ const SearchFilters = ({ onSearch }) => {
             <div className="relative w-full md:w-1/4">
                 <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
                 <select
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    name="location"
+                    value={filters.location}
+                    onChange={handleChange}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     <option value="">Lọc theo tỉnh thành</option>
@@ -52,7 +62,7 @@ const SearchFilters = ({ onSearch }) => {
             </div>
             <button
                 onClick={handleSearch}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 hover:scale-105 transition-transform flex items-center cursor-pointer"
             >
                 <span className="mr-2">Tìm việc</span>
                 <svg

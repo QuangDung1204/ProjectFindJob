@@ -18,8 +18,12 @@ const Footer = () => {
                     <div className="flex-1 min-w-[200px]">
                         <h3 className="font-bold mb-2">Thông tin</h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                            <a href="#" className="hover:text-blue-600">Cẩm nang nghề nghiệp</a>
-                            <a href="#" className="hover:text-blue-600">Báo giá dịch vụ</a>
+                            <a href="#" className="hover:text-blue-600 transition-colors cursor-pointer">
+                                Cẩm nang nghề nghiệp
+                            </a>
+                            <a href="#" className="hover:text-blue-600 transition-colors cursor-pointer">
+                                Báo giá dịch vụ
+                            </a>
                             <a href="#" className="hover:text-blue-600">Điều khoản sử dụng</a>
                             <a href="#" className="hover:text-blue-600">Quy định bảo mật</a>
                             <a href="#" className="hover:text-blue-600">Sơ đồ website</a>

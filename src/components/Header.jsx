@@ -26,7 +26,7 @@ const Header = () => {
                                 <span className="text-gray-700 font-medium">Xin chào, {user.fullName}</span>
                                 <button
                                     onClick={logout}
-                                    className="text-gray-700 hover:text-red-600 font-medium"
+                                    className="text-gray-700 hover:text-red-600 font-medium cursor-pointer"
                                 >
                                     Đăng xuất
                                 </button>
@@ -34,7 +34,7 @@ const Header = () => {
                         ) : (
                             <button
                                 onClick={() => setLoginModalOpen(true)}
-                                className="text-gray-700 font-medium"
+                                className="text-gray-700 font-medium hover:text-blue-600 transition-colors cursor-pointer"
                             >
                                 Đăng nhập
                             </button>

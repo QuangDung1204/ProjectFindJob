@@ -39,13 +39,13 @@ const Carousel = () => {
             </div>
             <button
                 onClick={goToPrevious}
-                className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700"
+                className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 hover:scale-110 transition-transform cursor-pointer"
             >
                 &#8592;
             </button>
             <button
                 onClick={goToNext}
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700"
+                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 hover:scale-110 transition-transform cursor-pointer"
             >
                 &#8594;
             </button>
