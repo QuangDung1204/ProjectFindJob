@@ -22,7 +22,7 @@ const Apply = () => {
         formData.append('cv', cv);
 
         // Gửi dữ liệu đến API backend
-        fetch('/api/apply', {
+        fetch('http://localhost:8080/api/v1/auth/register', {
             method: 'POST',
             body: formData,
         })
