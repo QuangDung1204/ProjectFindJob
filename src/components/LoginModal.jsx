@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { FacebookLogin } from 'react-facebook-login-lite';
+import { useNavigate } from 'react-router-dom';
 
 const LoginModal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState('');
     const [agreeTerms, setAgreeTerms] = useState(false);
-    const [step, setStep] = useState(1); // Bước 1: Đăng nhập, Bước 2: Hoàn tất đăng ký, Bước 3: Nhập mã code
+    const [step, setStep] = useState(1); // Bước 1: Đăng nhập, Bước 2: Hoàn tất đăng ký
     const [fullName, setFullName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
@@ -13,16 +14,39 @@ const LoginModal = ({ isOpen, onClose }) => {
     const [gender, setGender] = useState('FEMALE'); // Mặc định là FEMALE
     const [address, setAddress] = useState(''); // Địa chỉ
     const [isLoading, setIsLoading] = useState(false);
-    const [verificationCode, setVerificationCode] = useState(''); // Mã code người dùng nhập
-    const [generatedCode, setGeneratedCode] = useState(''); // Mã code được tạo
+    const navigate = useNavigate();
 
-    const handleGoogleLoginSuccess = (response) => {
+    const handleGoogleLoginSuccess = async (response) => {
         console.log('Google Login Success:', response);
-        // Thêm logic xử lý đăng nhập thành công tại đây
+
+        try {
+            const apiResponse = await fetch('/api/v1/auth/register/google', { // Sử dụng proxy
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (apiResponse.ok) {
+                const data = await apiResponse.json();
+                console.log('Google Login API Success:', data);
+                alert('Đăng nhập Google thành công!');
+
+                // Chuyển hướng đến Dashboard và truyền dữ liệu người dùng
+                navigate('/dashboard', { state: { userData: data } });
+            } else {
+                console.error('Google Login API Failed:', apiResponse.statusText);
+                alert('Đăng nhập Google thất bại!');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API Google Login:', error);
+            alert('Đã xảy ra lỗi khi kết nối với server.');
+        }
     };
 
     const handleGoogleLoginError = () => {
         console.error('Google Login Failed');
+        alert('Đăng nhập Google thất bại!');
     };
 
     if (!isOpen) return null;
@@ -68,7 +92,7 @@ const LoginModal = ({ isOpen, onClose }) => {
         };
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/auth/register', {
+            const response = await fetch('/api/v1/auth/register', { // Sử dụng proxy
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -79,6 +103,9 @@ const LoginModal = ({ isOpen, onClose }) => {
             const result = await response.json();
             if (response.ok) {
                 alert('Đăng ký thành công!');
+
+                // Chuyển hướng đến Dashboard và truyền dữ liệu người dùng
+                navigate('/dashboard', { state: { userData: result } });
             } else {
                 alert(`Lỗi: ${result.message}`);
             }
@@ -93,15 +120,6 @@ const LoginModal = ({ isOpen, onClose }) => {
         const currentYear = new Date().getFullYear();
         const age = currentYear - birthYear;
         return age >= 16; // Kiểm tra người dùng đủ 16 tuổi
-    };
-
-    const handleVerifyCode = () => {
-        if (verificationCode === generatedCode) {
-            alert('Xác thực thành công!');
-            // Thêm logic xử lý sau khi xác thực thành công
-        } else {
-            alert('Mã xác thực không đúng. Vui lòng thử lại.');
-        }
     };
 
     const handleBack = () => {

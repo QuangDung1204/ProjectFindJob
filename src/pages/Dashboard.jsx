@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import { FaEnvelope, FaPhone, FaCalendarAlt } from 'react-icons/fa';
@@ -25,6 +25,8 @@ const UserInfo = ({ user }) => (
 const Dashboard = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const userData = location.state?.userData; // Lấy dữ liệu người dùng từ state
 
     if (!user) {
         navigate('/login');
