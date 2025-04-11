@@ -9,16 +9,15 @@ import LoginModal from './components/LoginModal';
 
 const App = () => {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<LoginModal isOpen={true} onClose={() => { }} />} />
-          <Route path="/apply" element={<Apply />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/jobs/:id" element={<JobDetail />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/apply" element={<Apply />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
+        <Route path="/login" element={<LoginModal isOpen={true} onClose={() => { }} />} />
+      </Routes>
+    </Layout>
   );
 };
 

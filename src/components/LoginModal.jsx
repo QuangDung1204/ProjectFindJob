@@ -1,55 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { FacebookLogin } from 'react-facebook-login-lite';
-import { useNavigate } from 'react-router-dom';
 
 const LoginModal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState('');
+    const [loginEmail, setLoginEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
     const [agreeTerms, setAgreeTerms] = useState(false);
-    const [step, setStep] = useState(1); // Bước 1: Đăng nhập, Bước 2: Hoàn tất đăng ký
+    const [step, setStep] = useState(1);
     const [fullName, setFullName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
-    const [birthYear, setBirthYear] = useState(''); // Thay đổi từ ngày sinh sang năm sinh
-    const [gender, setGender] = useState('FEMALE'); // Mặc định là FEMALE
-    const [address, setAddress] = useState(''); // Địa chỉ
+    const [birthYear, setBirthYear] = useState('');
+    const [gender, setGender] = useState('FEMALE');
+    const [address, setAddress] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
+    const [verificationCode, setVerificationCode] = useState('');
+    const [generatedCode, setGeneratedCode] = useState('');
+    const [accessToken, setAccessToken] = useState('');
+    const [refreshToken, setRefreshToken] = useState('');
+    const [showLoginForm, setShowLoginForm] = useState(false);
+    const [loginError, setLoginError] = useState('');
+
+    useEffect(() => {
+        const storedAccessToken = localStorage.getItem('accessToken');
+        const storedRefreshToken = localStorage.getItem('refreshToken');
+        if (storedAccessToken && storedRefreshToken) {
+            setAccessToken(storedAccessToken);
+            setRefreshToken(storedRefreshToken);
+        }
+    }, []);
 
     const handleGoogleLoginSuccess = async (response) => {
-        console.log('Google Login Success:', response);
+        alert('Login thành công');
+        const credential = response.credential;
 
         try {
-            const apiResponse = await fetch('/api/v1/auth/register/google', { // Sử dụng proxy
-                method: 'GET',
+            const response = await fetch("http://localhost:8080/api/v1/auth/register/google", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
+                body: JSON.stringify({
+                    idToken: credential,
+                }),
             });
 
-            if (apiResponse.ok) {
-                const data = await apiResponse.json();
-                console.log('Google Login API Success:', data);
-                alert('Đăng nhập Google thành công!');
-
-                // Chuyển hướng đến Dashboard và truyền dữ liệu người dùng
-                navigate('/dashboard', { state: { userData: data } });
+            const data = await response.json();
+            if (response.ok) {
+                const newAccessToken = data.accessToken;
+                const newRefreshToken = data.refreshToken;
+                setAccessToken(newAccessToken);
+                setRefreshToken(newRefreshToken);
+                localStorage.setItem('accessToken', newAccessToken);
+                localStorage.setItem('refreshToken', newRefreshToken);
+                onClose();
             } else {
-                console.error('Google Login API Failed:', apiResponse.statusText);
-                alert('Đăng nhập Google thất bại!');
+                console.error("Lỗi gửi token lên server:", data.message);
             }
-        } catch (error) {
-            console.error('Lỗi khi gọi API Google Login:', error);
-            alert('Đã xảy ra lỗi khi kết nối với server.');
+        } catch (err) {
+            console.error("Lỗi gửi token lên server:", err);
         }
     };
 
-    const handleGoogleLoginError = () => {
-        console.error('Google Login Failed');
-        alert('Đăng nhập Google thất bại!');
+    const handleGoogleLoginError = (error) => {
+        console.error('Lỗi đăng nhập Google:', error);
     };
 
-    if (!isOpen) return null;
+    const handleRefreshToken = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/api/v1/auth/refresh-token", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    refreshToken: refreshToken,
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                const newAccessToken = data.accessToken;
+                setAccessToken(newAccessToken);
+                localStorage.setItem('accessToken', newAccessToken);
+            } else {
+                console.error("Lỗi refresh token:", data.message);
+            }
+        } catch (err) {
+            console.error("Lỗi gửi yêu cầu refresh token:", err);
+        }
+    };
 
     const handleEmailLogin = () => {
         if (!agreeTerms) {
@@ -78,10 +119,8 @@ const LoginModal = ({ isOpen, onClose }) => {
             return;
         }
 
-        // Tính tuổi từ năm sinh
         const age = new Date().getFullYear() - birthYear;
 
-        // Dữ liệu gửi đến backend
         const userData = {
             name: fullName,
             email: email,
@@ -92,7 +131,7 @@ const LoginModal = ({ isOpen, onClose }) => {
         };
 
         try {
-            const response = await fetch('/api/v1/auth/register', { // Sử dụng proxy
+            const response = await fetch('http://localhost:8080/api/v1/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -102,16 +141,83 @@ const LoginModal = ({ isOpen, onClose }) => {
 
             const result = await response.json();
             if (response.ok) {
+                const newAccessToken = result.accessToken;
+                const newRefreshToken = result.refreshToken;
+                setAccessToken(newAccessToken);
+                setRefreshToken(newRefreshToken);
+                localStorage.setItem('accessToken', newAccessToken);
+                localStorage.setItem('refreshToken', newRefreshToken);
                 alert('Đăng ký thành công!');
-
-                // Chuyển hướng đến Dashboard và truyền dữ liệu người dùng
-                navigate('/dashboard', { state: { userData: result } });
+                onClose();
             } else {
                 alert(`Lỗi: ${result.message}`);
             }
         } catch (error) {
             console.error('Lỗi khi gửi dữ liệu:', error);
             alert('Đã xảy ra lỗi. Vui lòng thử lại.');
+        }
+    };
+
+    const handleUserLogin = async (e) => {
+        e.preventDefault();
+        setLoginError('');
+
+        if (!loginEmail || !loginPassword) {
+            setLoginError('Vui lòng nhập đầy đủ email và mật khẩu');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: loginEmail,
+                    password: loginPassword
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.message === "CALL API SUCCESS") {
+                // Lưu thông tin người dùng vào localStorage
+                const userData = result.data.user;
+                const accessToken = result.access_token;
+
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('userId', userData.id);
+                localStorage.setItem('userEmail', userData.email);
+                localStorage.setItem('userName', userData.name);
+
+                // Nếu có thông tin role, lưu thêm
+                if (userData.role) {
+                    localStorage.setItem('userRole', userData.role.name);
+                }
+
+                // Cập nhật state
+                setAccessToken(accessToken);
+
+                alert('Đăng nhập thành công!');
+                onClose();
+            } else {
+                // Xử lý các trường hợp lỗi
+                if (result.statusCode === 400 && result.message === "Bad credentials") {
+                    setLoginError('Tài khoản hoặc mật khẩu không chính xác');
+                } else if (result.error) {
+                    setLoginError(`Lỗi: ${result.message || 'Đã xảy ra lỗi'}`);
+                } else {
+                    setLoginError('Đăng nhập thất bại. Vui lòng thử lại sau.');
+                }
+            }
+        } catch (error) {
+            console.error('Lỗi khi đăng nhập:', error);
+            setLoginError('Đã xảy ra lỗi kết nối. Vui lòng thử lại sau.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -122,8 +228,22 @@ const LoginModal = ({ isOpen, onClose }) => {
         return age >= 16; // Kiểm tra người dùng đủ 16 tuổi
     };
 
+    const handleVerifyCode = () => {
+        if (verificationCode === generatedCode) {
+            alert('Xác thực thành công!');
+            // Thêm logic xử lý sau khi xác thực thành công
+        } else {
+            alert('Mã xác thực không đúng. Vui lòng thử lại.');
+        }
+    };
+
     const handleBack = () => {
         setStep(step - 1); // Quay lại bước trước
+    };
+
+    const toggleLoginForm = () => {
+        setShowLoginForm(!showLoginForm);
+        setLoginError('');
     };
 
     return (
@@ -139,10 +259,10 @@ const LoginModal = ({ isOpen, onClose }) => {
                         >
                             ✕
                         </button>
-                        {step === 1 && (
+                        {step === 1 && !showLoginForm && (
                             <>
                                 <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
-                                <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+                                <GoogleOAuthProvider clientId="375619880981-hla5js4didg8108u2j814e89sonan5jq.apps.googleusercontent.com">
                                     <div className="flex flex-col space-y-4">
                                         <GoogleLogin
                                             onSuccess={handleGoogleLoginSuccess}
@@ -197,28 +317,82 @@ const LoginModal = ({ isOpen, onClose }) => {
                                         onClick={handleEmailLogin}
                                         className="w-full mt-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
                                     >
-                                        {isLoading ? 'Đang tải...' : 'Tiếp tục'}
+                                        {isLoading ? 'Đang tải...' : 'Tiếp tục đăng ký'}
                                     </button>
+
+                                    <div className="mt-4 text-center">
+                                        <p className="text-sm text-gray-600">
+                                            Đã có tài khoản?{' '}
+                                            <button
+                                                onClick={toggleLoginForm}
+                                                className="text-purple-600 hover:underline font-medium"
+                                            >
+                                                Đăng nhập ngay
+                                            </button>
+                                        </p>
+                                    </div>
                                 </div>
                             </>
                         )}
+
+                        {showLoginForm && (
+                            <>
+                                <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
+                                <form onSubmit={handleUserLogin} className="flex flex-col space-y-4">
+                                    <input
+                                        type="email"
+                                        placeholder="Email của bạn"
+                                        value={loginEmail}
+                                        onChange={(e) => setLoginEmail(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                        required
+                                    />
+                                    <input
+                                        type="password"
+                                        placeholder="Mật khẩu"
+                                        value={loginPassword}
+                                        onChange={(e) => setLoginPassword(e.target.value)}
+                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                        required
+                                    />
+
+                                    {loginError && (
+                                        <div className="text-red-500 text-sm">{loginError}</div>
+                                    )}
+
+                                    <button
+                                        type="submit"
+                                        className="w-full py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                                    </button>
+
+                                    <div className="text-center">
+                                        <a href="#" className="text-sm text-purple-600 hover:underline">
+                                            Quên mật khẩu?
+                                        </a>
+                                    </div>
+
+                                    <div className="mt-4 text-center">
+                                        <p className="text-sm text-gray-600">
+                                            Chưa có tài khoản?{' '}
+                                            <button
+                                                type="button"
+                                                onClick={toggleLoginForm}
+                                                className="text-purple-600 hover:underline font-medium"
+                                            >
+                                                Đăng ký ngay
+                                            </button>
+                                        </p>
+                                    </div>
+                                </form>
+                            </>
+                        )}
+
                         {step === 2 && (
                             <>
-                                <button
-                                    onClick={handleBack}
-                                    className="absolute top-2 left-2 text-gray-500 hover:text-gray-700"
-                                >
-                                    ← Quay lại
-                                </button>
-                                <h2 className="text-2xl font-bold mb-2 text-center">
-                                    Hoàn tất việc đăng ký với email
-                                </h2>
-                                <p className="text-center text-purple-600 font-bold mb-6">
-                                    {email}
-                                </p>
-                                <p className="text-center text-gray-500 mb-6">
-                                    để trải nghiệm các tính năng của Vieclam24h.vn
-                                </p>
+                                <h2 className="text-2xl font-bold mb-6 text-center">Đăng ký tài khoản</h2>
                                 <div className="flex flex-col space-y-4">
                                     <input
                                         type="text"
@@ -228,7 +402,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                                         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                                     />
                                     <input
-                                        type="text"
+                                        type="tel"
                                         placeholder="Số điện thoại"
                                         value={phoneNumber}
                                         onChange={(e) => setPhoneNumber(e.target.value)}
@@ -243,19 +417,11 @@ const LoginModal = ({ isOpen, onClose }) => {
                                     />
                                     <input
                                         type="number"
-                                        placeholder="Năm sinh (VD: 2005)"
+                                        placeholder="Năm sinh (VD: 1990)"
                                         value={birthYear}
                                         onChange={(e) => setBirthYear(e.target.value)}
                                         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                                     />
-                                    <select
-                                        onChange={(e) => setGender(e.target.value)}
-                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                    >
-                                        <option value="FEMALE">Nữ</option>
-                                        <option value="MALE">Nam</option>
-                                        <option value="OTHER">Khác</option>
-                                    </select>
                                     <input
                                         type="text"
                                         placeholder="Địa chỉ"
@@ -263,15 +429,101 @@ const LoginModal = ({ isOpen, onClose }) => {
                                         onChange={(e) => setAddress(e.target.value)}
                                         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                                     />
-                                    <button
-                                        onClick={handleCompleteRegistration}
-                                        className="w-full mt-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
-                                    >
-                                        Tiếp tục
-                                    </button>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Giới tính</label>
+                                        <div className="flex space-x-4">
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="gender"
+                                                    value="FEMALE"
+                                                    checked={gender === 'FEMALE'}
+                                                    onChange={() => setGender('FEMALE')}
+                                                    className="mr-2"
+                                                />
+                                                Nữ
+                                            </label>
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="gender"
+                                                    value="MALE"
+                                                    checked={gender === 'MALE'}
+                                                    onChange={() => setGender('MALE')}
+                                                    className="mr-2"
+                                                />
+                                                Nam
+                                            </label>
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="gender"
+                                                    value="OTHER"
+                                                    checked={gender === 'OTHER'}
+                                                    onChange={() => setGender('OTHER')}
+                                                    className="mr-2"
+                                                />
+                                                Khác
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex space-x-3 mt-6">
+                                        <button
+                                            onClick={handleBack}
+                                            className="flex-1 py-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400"
+                                        >
+                                            Quay lại
+                                        </button>
+                                        <button
+                                            onClick={handleCompleteRegistration}
+                                            className="flex-1 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+                                        >
+                                            Hoàn thành đăng ký
+                                        </button>
+                                    </div>
                                 </div>
                             </>
                         )}
+                    </div>
+
+                    <div className="hidden md:block md:w-1/2 bg-purple-100 p-6 rounded-r-lg">
+                        <div className="h-full flex flex-col justify-center items-center">
+                            <img
+                                src="/logo.png"
+                                alt="Logo"
+                                className="w-32 h-32 mb-6"
+                            />
+                            <h3 className="text-xl font-bold text-purple-700 mb-4 text-center">
+                                Việc Làm 24h - Nền tảng tìm việc hàng đầu
+                            </h3>
+                            <ul className="space-y-3">
+                                <li className="flex items-center text-gray-700">
+                                    <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Tiếp cận hàng ngàn công việc hấp dẫn
+                                </li>
+                                <li className="flex items-center text-gray-700">
+                                    <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Kết nối trực tiếp với nhà tuyển dụng
+                                </li>
+                                <li className="flex items-center text-gray-700">
+                                    <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Tìm kiếm việc làm phù hợp với kỹ năng
+                                </li>
+                                <li className="flex items-center text-gray-700">
+                                    <svg className="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Nhận thông báo việc làm mới mỗi ngày
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
