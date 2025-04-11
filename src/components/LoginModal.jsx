@@ -79,17 +79,53 @@ const LoginModal = ({ isOpen, onClose }) => {
                 }),
             });
 
-            const data = await response.json();
-            if (response.ok) {
-                const newAccessToken = data.accessToken;
+            const result = await response.json();
+
+            if (response.ok && result.message === "CALL API SUCCESS") {
+                // Lấy access token mới từ kết quả
+                const newAccessToken = result.access_token;
+
+                // Cập nhật state và localStorage
                 setAccessToken(newAccessToken);
                 localStorage.setItem('accessToken', newAccessToken);
+
+                // Nếu có refresh token mới, cập nhật luôn
+                if (result.refresh_token) {
+                    const newRefreshToken = result.refresh_token;
+                    setRefreshToken(newRefreshToken);
+                    localStorage.setItem('refreshToken', newRefreshToken);
+                }
+
+                return true; // Thành công
             } else {
-                console.error("Lỗi refresh token:", data.message);
+                console.error("Lỗi refresh token:", result.message);
+
+                // Nếu refresh token hết hạn hoặc không hợp lệ, đăng xuất người dùng
+                if (result.statusCode === 401) {
+                    handleLogout();
+                }
+
+                return false; // Thất bại
             }
         } catch (err) {
             console.error("Lỗi gửi yêu cầu refresh token:", err);
+            return false; // Thất bại
         }
+    };
+
+    const handleLogout = () => {
+        // Xóa tất cả thông tin đăng nhập khỏi localStorage
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userPermissions');
+
+        // Reset state
+        setAccessToken('');
+        setRefreshToken('');
     };
 
     const handleEmailLogin = () => {
@@ -228,180 +264,6 @@ const LoginModal = ({ isOpen, onClose }) => {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const handleUserLogin = async (e) => {
-        e.preventDefault();
-        setLoginError('');
-
-        if (!loginEmail || !loginPassword) {
-            setLoginError('Vui lòng nhập đầy đủ email và mật khẩu');
-            return;
-        }
-
-        setIsLoading(true);
-
-        try {
-            const response = await fetch('http://localhost:8080/api/v1/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: loginEmail,
-                    password: loginPassword
-                }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.message === "CALL API SUCCESS") {
-                // Lưu thông tin người dùng vào localStorage
-                const userData = result.data.user;
-                const accessToken = result.access_token;
-
-                // Giả định là refresh_token cũng được trả về trong API - điều chỉnh tên thuộc tính nếu cần
-                const refreshToken = result.refresh_token;
-
-                // Cập nhật state
-                setAccessToken(accessToken);
-                setRefreshToken(refreshToken);
-
-                // Lưu token vào localStorage
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('refreshToken', refreshToken);
-
-                // Lưu thông tin người dùng
-                localStorage.setItem('userId', userData.id);
-                localStorage.setItem('userEmail', userData.email);
-                localStorage.setItem('userName', userData.name);
-
-                // Nếu có thông tin role, lưu thêm
-                if (userData.role) {
-                    localStorage.setItem('userRole', userData.role.name);
-                    localStorage.setItem('userPermissions', JSON.stringify(userData.role.permissions || []));
-                }
-
-                alert('Đăng nhập thành công!');
-                onClose();
-            } else {
-                // Xử lý các trường hợp lỗi
-                if (result.statusCode === 400 && result.message === "Bad credentials") {
-                    setLoginError('Tài khoản hoặc mật khẩu không chính xác');
-                } else if (result.error) {
-                    setLoginError(`Lỗi: ${result.message || 'Đã xảy ra lỗi'}`);
-                } else {
-                    setLoginError('Đăng nhập thất bại. Vui lòng thử lại sau.');
-                }
-            }
-        } catch (error) {
-            console.error('Lỗi khi đăng nhập:', error);
-            setLoginError('Đã xảy ra lỗi kết nối. Vui lòng thử lại sau.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Hàm xử lý refresh token khi token hết hạn
-    const handleRefreshToken = async () => {
-        try {
-            const response = await fetch("http://localhost:8080/api/v1/auth/refresh-token", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    refreshToken: refreshToken,
-                }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.message === "CALL API SUCCESS") {
-                // Lấy access token mới từ kết quả
-                const newAccessToken = result.access_token;
-
-                // Cập nhật state và localStorage
-                setAccessToken(newAccessToken);
-                localStorage.setItem('accessToken', newAccessToken);
-
-                // Nếu có refresh token mới, cập nhật luôn
-                if (result.refresh_token) {
-                    const newRefreshToken = result.refresh_token;
-                    setRefreshToken(newRefreshToken);
-                    localStorage.setItem('refreshToken', newRefreshToken);
-                }
-
-                return true;
-            } else {
-                console.error("Lỗi refresh token:", result.message);
-
-                // Nếu refresh token hết hạn hoặc không hợp lệ, đăng xuất người dùng
-                if (result.statusCode === 401) {
-                    handleLogout();
-                }
-
-                return false; // Thất bại
-            }
-        } catch (err) {
-            console.error("Lỗi gửi yêu cầu refresh token:", err);
-            return false; // Thất bại
-        }
-    };
-
-    // Hàm xử lý đăng xuất
-    const handleLogout = () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userPermissions');
-
-        // Reset state
-        setAccessToken('');
-        setRefreshToken('');
-        window.location.href = '/login';
-    };
-
-    // Hàm tạo interceptor cho axios (nếu sử dụng axios)
-    const setupAxiosInterceptors = () => {
-        axios.interceptors.request.use(
-            config => {
-                const token = localStorage.getItem('accessToken');
-                if (token) {
-                    config.headers['Authorization'] = `Bearer ${token}`;
-                }
-                return config;
-            },
-            error => {
-                return Promise.reject(error);
-            }
-        );
-
-        axios.interceptors.response.use(
-            response => response,
-            async error => {
-                const originalRequest = error.config;
-                if (error.response.status === 401 && !originalRequest._retry) {
-                    originalRequest._retry = true;
-
-                    // Thử refresh token
-                    const success = await handleRefreshToken();
-                    if (success) {
-                        // Cập nhật token mới vào header
-                        originalRequest.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-                        // Thử lại request với token mới
-                        return axios(originalRequest);
-                    } else {
-                        // Đăng xuất nếu không refresh được
-                        handleLogout();
-                    }
-                }
-                return Promise.reject(error);
-            }
-        );
     };
 
     // Hàm kiểm tra độ tuổi
