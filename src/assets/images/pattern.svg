@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="star-pattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M30 10L33.5 20.5H45L35.5 27L39 37.5L30 31L21 37.5L24.5 27L15 20.5H26.5L30 10Z" fill="#ffffff" fill-opacity="0.1"/>
+    </pattern>
+  </defs>
+  <rect width="60" height="60" fill="url(#star-pattern)"/>
+</svg> 
