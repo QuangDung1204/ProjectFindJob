@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #c41e3a;
+  --primary-color-dark: #a01830;
+  --secondary-color: #ffd700;
+  --text-color: #333333;
+  --text-light: #666666;
+  --background-light: #fff6e5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  color: var(--text-color);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-weight: 600;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.ant-btn-primary {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  
+  &:hover {
+    background: var(--primary-color-dark);
+    border-color: var(--primary-color-dark);
+  }
+}
+
+.ant-input {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.2);
+  }
+}
+
+.ant-tag {
+  font-family: 'Be Vietnam Pro', sans-serif;
+} 
