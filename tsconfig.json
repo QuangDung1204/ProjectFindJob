@@ -9,7 +9,7 @@
     ],
     "allowJs": false,
     "skipLibCheck": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": false,
@@ -36,10 +36,13 @@
       "pages/*": [
         "src/pages/*"
       ]
-    }
+    },
+    "types": ["@mui/material", "@emotion/react/types/css-prop"]
   },
   "include": [
-    "src"
+    "src",
+    "node_modules/@mui/material",
+    "node_modules/@emotion/react"
   ],
   "exclude": [
     "node_modules"
