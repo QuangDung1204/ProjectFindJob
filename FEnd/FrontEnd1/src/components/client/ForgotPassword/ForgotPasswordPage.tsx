@@ -21,6 +21,7 @@ const ForgotPasswordPage = () => {
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [timer, setTimer] = useState(60);
   const [code, setCode] = useState("");
+  const [email, setEmail] = useState(""); // Lưu email đã nhập
 
   useEffect(() => {
     let interval;
@@ -38,10 +39,10 @@ const ForgotPasswordPage = () => {
 
   const onFinishEmail = async (values) => {
     const { email } = values;
+    setEmail(email); // lưu lại email để dùng sau
     setIsSubmit(true);
     try {
       const res = await callForgotPassword(email);
-      console.log("res: ", res);
       setIsSubmit(false);
       if (res.statusCode === 400) {
         notification.error({
@@ -86,22 +87,23 @@ const ForgotPasswordPage = () => {
     try {
       setIsSubmit(true);
 
-      const res = await callFetchConfirmCode(code); // Nếu mã sai thì sẽ throw
+      const res = await callFetchConfirmCode({ code, email });
 
       if (res.statusCode === 200) {
-        message.success("Xác nhận mã thành công!");
+        notification.success({
+          message: "Đổi mật khẩu thành công",
+          description: "Mật khẩu của bạn đã được thay đổi thành 123456",
+          duration: 8, // thời gian hiển thị thông báo (giây)
+        });
         navigate("/login");
-      }
-      else {
+      } else {
         notification.error({
           message: "Mã không chính xác",
           description: "Vui lòng kiểm tra lại mã và thử lại.",
           duration: 5,
         });
       }
-
     } catch (error: any) {
-
       notification.error({
         message: "Lỗi hệ thống",
         description: "Vui lòng thử lại sau!",
@@ -125,6 +127,7 @@ const ForgotPasswordPage = () => {
               : "Nhập email của bạn để nhận liên kết khôi phục mật khẩu"}
           </Text>
         </div>
+
         {!showCodeInput ? (
           <Form
             name="forgot-password"

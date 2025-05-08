@@ -4,6 +4,7 @@ import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
@@ -28,5 +29,14 @@ public class ResEmailJob {
     @AllArgsConstructor
     public static class SkillEmail {
         private String name;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class APPROVED {
+        private String job;
+        private String company;
     }
 }

@@ -32,6 +32,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 import jakarta.validation.Valid;
 import vn.minhtri.jobhunter.domain.User;
+import vn.minhtri.jobhunter.domain.request.ReqForgotPass;
 import vn.minhtri.jobhunter.domain.request.ReqLoginDTO;
 import vn.minhtri.jobhunter.domain.request.ReqUpdatePassword;
 import vn.minhtri.jobhunter.domain.response.ResCreateUserDTO;
@@ -181,17 +182,17 @@ public class AuthController {
             res.setUser(userLogin);
         }
 
-        // create access token
+        // tạo token
         String access_token = this.securityUtil.createAccessToken(email, res);
         res.setAccessToken(access_token);
 
-        // create refresh token
+        // tạo refesh_token
         String new_refresh_token = this.securityUtil.createRefreshToken(email, res);
 
-        // update user
+        // cặp nhật refesh_token vào
         this.userService.updateUserToken(new_refresh_token, email);
 
-        // set cookies
+        // set cokkie
         ResponseCookie resCookies = ResponseCookie
                 .from("refresh_token", new_refresh_token)
                 .httpOnly(true)
@@ -349,12 +350,23 @@ public class AuthController {
         return ResponseEntity.ok("Email hợp lệ. Vui lòng kiểm tra hộp thư của bạn.");
     }
 
-    @GetMapping("/auth/confirmCode/{id}")
+    @PostMapping("/auth/confirmCode")
     @ApiMessage("Đổi mật khẩu thành công")
-    public ResponseEntity<Void> confirmCode(@PathVariable("id") long code) throws IdInvalidException {
-        if (code != AuthController.code)
+    public ResponseEntity<Void> confirmCode(@RequestBody ReqForgotPass request) throws IdInvalidException {
+        String email = request.getEmail();
+        long code = request.getCode();
+        User currentUserDB = this.userService.handleGetUserByUsername(email);
+        if (code != AuthController.code || currentUserDB == null) {
             throw new IdInvalidException("Mã không chính xác");
-        return ResponseEntity.ok(null);
+        }
+
+        else {
+            String hashPassword = this.passwordEncoder.encode("123456");
+            currentUserDB.setPassword(hashPassword);
+            this.userService.save(currentUserDB);
+            return ResponseEntity.ok(null);
+        }
+
     }
 
 }

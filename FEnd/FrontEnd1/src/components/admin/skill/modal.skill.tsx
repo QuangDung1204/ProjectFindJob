@@ -25,7 +25,7 @@ const ModalSkill = (props: IProps) => {
             //update
             const res = await callUpdateSkill(dataInit.id, name);
             if (res.data) {
-                message.success("Cập nhật skill thành công");
+                message.success("Cập nhật kỹ năng thành công");
                 handleReset();
                 reloadTable();
             } else {
@@ -38,7 +38,7 @@ const ModalSkill = (props: IProps) => {
             //create
             const res = await callCreateSkill(name);
             if (res.data) {
-                message.success("Thêm mới skill thành công");
+                message.success("Thêm mới kỹ năng thành công");
                 handleReset();
                 reloadTable();
             } else {
@@ -59,7 +59,7 @@ const ModalSkill = (props: IProps) => {
     return (
         <>
             <ModalForm
-                title={<>{dataInit?.id ? "Cập nhật Skill" : "Tạo mới Skill"}</>}
+                title={<>{dataInit?.id ? "Cập nhật kỹ năng" : "Tạo mới kỹ năng"}</>}
                 open={openModal}
                 modalProps={{
                     onCancel: () => { handleReset() },
@@ -80,10 +80,10 @@ const ModalSkill = (props: IProps) => {
                 <Row gutter={16}>
                     <Col span={24}>
                         <ProFormText
-                            label="Tên skill"
+                            label="Tên kỹ năng"
                             name="name"
                             rules={[{ required: true, message: 'Vui lòng không bỏ trống' }]}
-                            placeholder="Nhập tên skill"
+                            placeholder="Nhập tên kỹ năng"
                         />
                     </Col>
                 </Row>

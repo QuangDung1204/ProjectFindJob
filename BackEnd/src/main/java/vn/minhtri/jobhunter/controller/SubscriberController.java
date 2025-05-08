@@ -25,7 +25,7 @@ public class SubscriberController {
     }
 
     @PostMapping("/subscribers")
-    @ApiMessage("Create a subscriber")
+    @ApiMessage("Tạo mới 1 lượt đăng kí")
     public ResponseEntity<Subscriber> create(@Valid @RequestBody Subscriber sub) throws IdInvalidException {
         // check email
         boolean isExist = this.subscriberService.isExistsByEmail(sub.getEmail());

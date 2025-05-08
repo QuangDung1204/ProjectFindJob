@@ -50,7 +50,7 @@ const RolePage = () => {
         if (id) {
             const res = await callDeleteRole(id);
             if (res && res.statusCode === 200) {
-                message.success('Xóa Role thành công');
+                message.success('Xóa "vai trò" thành công');
                 reloadTable();
             } else {
                 notification.error({
@@ -97,7 +97,7 @@ const RolePage = () => {
             hideInSearch: true,
         },
         {
-            title: 'CreatedAt',
+            title: 'Ngày tạo',
             dataIndex: 'createdAt',
             width: 200,
             sorter: true,
@@ -109,7 +109,7 @@ const RolePage = () => {
             hideInSearch: true,
         },
         {
-            title: 'UpdatedAt',
+            title: 'Ngày cập nhật',
             dataIndex: 'updatedAt',
             width: 200,
             sorter: true,
@@ -122,7 +122,7 @@ const RolePage = () => {
         },
         {
 
-            title: 'Actions',
+            title: 'Lựa chọn',
             hideInSearch: true,
             width: 50,
             render: (_value, entity, _index, _action) => (
@@ -149,8 +149,8 @@ const RolePage = () => {
                     >
                         <Popconfirm
                             placement="leftTop"
-                            title={"Xác nhận xóa role"}
-                            description={"Bạn có chắc chắn muốn xóa role này ?"}
+                            title={"Xác nhận xóa Vai Trò"}
+                            description={"Bạn có chắc chắn muốn xóa VAI TRÒ này ?"}
                             onConfirm={() => handleDeleteRole(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
@@ -213,7 +213,7 @@ const RolePage = () => {
             >
                 <DataTable<IRole>
                     actionRef={tableRef}
-                    headerTitle="Danh sách Roles (Vai Trò)"
+                    headerTitle="Danh sách Vai Trò"
                     rowKey="id"
                     loading={isFetching}
                     columns={columns}

@@ -31,7 +31,7 @@ public class PermissionController {
     }
 
     @PostMapping("/permissions")
-    @ApiMessage("Create a permission")
+    @ApiMessage("Tạo mới chức vụ")
     public ResponseEntity<Permission> create(@Valid @RequestBody Permission p) throws IdInvalidException {
         // check exist
         if (this.permissionService.isPermissionExist(p)) {
@@ -43,29 +43,27 @@ public class PermissionController {
     }
 
     @PutMapping("/permissions")
-    @ApiMessage("Update a permission")
+    @ApiMessage("Cập nhật chức vụ")
     public ResponseEntity<Permission> update(@Valid @RequestBody Permission p) throws IdInvalidException {
-        // check exist by id
+
         if (this.permissionService.fetchById(p.getId()) == null) {
             throw new IdInvalidException("Permission với id = " + p.getId() + " không tồn tại.");
         }
 
-        // check exist by module, apiPath and method
         if (this.permissionService.isPermissionExist(p)) {
-            // check name
+
             if (this.permissionService.isSameName(p)) {
                 throw new IdInvalidException("Permission đã tồn tại.");
             }
         }
 
-        // update permission
         return ResponseEntity.ok().body(this.permissionService.update(p));
     }
 
     @DeleteMapping("/permissions/{id}")
     @ApiMessage("delete a permission")
     public ResponseEntity<Void> delete(@PathVariable("id") long id) throws IdInvalidException {
-        // check exist by id
+
         if (this.permissionService.fetchById(id) == null) {
             throw new IdInvalidException("Permission với id = " + id + " không tồn tại.");
         }

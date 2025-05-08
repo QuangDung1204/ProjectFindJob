@@ -84,7 +84,7 @@ const ModalCompany = (props: IProps) => {
             //create
             const res = await callCreateCompany(name, address, value, dataLogo[0].name);
             if (res.data) {
-                message.success("Thêm mới company thành công");
+                message.success("Thêm mới công ty thành công");
                 handleReset();
                 reloadTable();
             } else {
@@ -135,11 +135,11 @@ const ModalCompany = (props: IProps) => {
     const beforeUpload = (file: any) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
         if (!isJpgOrPng) {
-            message.error('You can only upload JPG/PNG file!');
+            message.error('Bạn cần upload file JPG/PNG!');
         }
         const isLt2M = file.size / 1024 / 1024 < 2;
         if (!isLt2M) {
-            message.error('Image must smaller than 2MB!');
+            message.error('Ảnh nhỏ hơn 2MB');
         }
         return isJpgOrPng && isLt2M;
     };

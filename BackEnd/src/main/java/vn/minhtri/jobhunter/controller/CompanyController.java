@@ -39,7 +39,7 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
-    @ApiMessage("Fetch companies")
+    @ApiMessage("Lấy tát cả công ty")
     public ResponseEntity<ResultPaginationDTO> getCompany(
             @Filter Specification<Company> spec, Pageable pageable) {
 
@@ -59,7 +59,7 @@ public class CompanyController {
     }
 
     @GetMapping("/companies/{id}")
-    @ApiMessage("fetch company by id")
+    @ApiMessage("Lấy công ty theo id")
     public ResponseEntity<Company> fetchCompanyById(@PathVariable("id") long id) {
         Optional<Company> cOptional = this.companyService.findById(id);
         return ResponseEntity.ok().body(cOptional.get());

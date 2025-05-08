@@ -216,4 +216,8 @@ public class UserService {
         }
         return false;
     }
+
+    public void save(User user) {
+        this.userRepository.save(user);
+    }
 }

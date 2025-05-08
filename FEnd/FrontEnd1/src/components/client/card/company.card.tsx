@@ -17,7 +17,7 @@ const CompanyCard = (props: IProps) => {
   const [displayCompany, setDisplayCompany] = useState<ICompany[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [current, setCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(4);
+  const [pageSize, setPageSize] = useState(12);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState("");
   const [sortQuery, setSortQuery] = useState("sort=updatedAt,desc");
@@ -82,9 +82,8 @@ const CompanyCard = (props: IProps) => {
                     <div className="card-cover">
                       <img
                         alt={item.name}
-                        src={`${
-                          import.meta.env.VITE_BACKEND_URL
-                        }/storage/company/${item?.logo}`}
+                        src={`${import.meta.env.VITE_BACKEND_URL
+                          }/storage/company/${item?.logo}`}
                         className="company-logo"
                       />
                     </div>

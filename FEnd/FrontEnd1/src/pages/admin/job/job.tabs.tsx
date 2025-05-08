@@ -13,12 +13,12 @@ const JobTabs = () => {
     const items: TabsProps['items'] = [
         {
             key: '1',
-            label: 'Manage Jobs',
+            label: 'Quản lí công việc',
             children: <JobPage />,
         },
         {
             key: '2',
-            label: 'Manage Skills',
+            label: 'Quản lí kỹ năng',
             children: <SkillPage />,
         },
 

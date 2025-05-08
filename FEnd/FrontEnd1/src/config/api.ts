@@ -64,9 +64,11 @@ export const callGoogleLogin = (idToken: string) => {
   );
 };
 
-export const callFetchConfirmCode = (code: string) => {
-  return axios.get<IBackendRes<string>>(`/api/v1/auth/confirmCode/${code}`);
+
+export const callFetchConfirmCode = (data: { email: string; code: string }) => {
+  return axios.post<IBackendRes<string>>(`/api/v1/auth/confirmCode`, data);
 };
+
 // update password
 export const callUpdatePassword = ({
   currentPassword,

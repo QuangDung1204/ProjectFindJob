@@ -22,6 +22,7 @@ import vn.minhtri.jobhunter.domain.Job;
 import vn.minhtri.jobhunter.domain.Resume;
 import vn.minhtri.jobhunter.domain.User;
 import vn.minhtri.jobhunter.domain.response.ResultPaginationDTO;
+import vn.minhtri.jobhunter.domain.response.email.ResEmailJob;
 import vn.minhtri.jobhunter.domain.response.resume.ResCreateResumeDTO;
 import vn.minhtri.jobhunter.domain.response.resume.ResFetchResumeDTO;
 import vn.minhtri.jobhunter.domain.response.resume.ResUpdateResumeDTO;
@@ -30,6 +31,7 @@ import vn.minhtri.jobhunter.service.ResumeService;
 import vn.minhtri.jobhunter.service.UserService;
 import vn.minhtri.jobhunter.util.SecurityUtil;
 import vn.minhtri.jobhunter.util.annotation.ApiMessage;
+import vn.minhtri.jobhunter.util.constant.ResumeStateEnum;
 import vn.minhtri.jobhunter.util.error.IdInvalidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -90,7 +92,37 @@ public class ResumeController {
 
         Resume reqResume = reqResumeOptional.get();
         reqResume.setStatus(resume.getStatus());
+        if (resume.getStatus() == ResumeStateEnum.APPROVED) {
+            ResEmailJob.APPROVED approved = new ResEmailJob.APPROVED();
+            User user = this.userService.handleGetUserByUsername(reqResume.getEmail());
+            if (reqResume.getJob() != null) {
+                approved.setJob(reqResume.getJob().getName());
+                approved.setCompany(reqResume.getJob().getCompany().getName());
+                System.out.println("APPROVED");
+                this.emailService.sendEmailFromTemplateSync(
+                        reqResume.getEmail(),
+                        "CHÚC MỪNG BẠN ĐÃ TRÚNG TUYỂN",
+                        "APPROVED",
+                        user.getName(),
+                        approved);
+            }
 
+        } else {
+            if (resume.getStatus() == ResumeStateEnum.REJECTED) {
+                ResEmailJob.APPROVED approved = new ResEmailJob.APPROVED();
+                User user = this.userService.handleGetUserByUsername(reqResume.getEmail());
+                if (reqResume.getJob() != null) {
+                    approved.setJob(reqResume.getJob().getName());
+                    approved.setCompany(reqResume.getJob().getCompany().getName());
+                    this.emailService.sendEmailFromTemplateSync(
+                            reqResume.getEmail(),
+                            "TỪ CHỐI HỒ SƠ",
+                            "REJECTED",
+                            user.getName(),
+                            approved);
+                }
+            }
+        }
         return ResponseEntity.ok().body(this.resumeService.update(reqResume));
     }
 
@@ -130,6 +162,7 @@ public class ResumeController {
         User currentUser = this.userService.handleGetUserByUsername(email);
         if (currentUser != null) {
             Company userCompany = currentUser.getCompany();
+            System.out.println(userCompany.getName());
             if (userCompany != null) {
                 List<Job> companyJobs = userCompany.getJobs();
                 if (companyJobs != null && companyJobs.size() > 0) {
@@ -138,7 +171,6 @@ public class ResumeController {
                 }
             }
         }
-
         Specification<Resume> jobInSpec = filterSpecificationConverter.convert(filterBuilder.field("job")
                 .in(filterBuilder.input(arrJobIds)).get());
 

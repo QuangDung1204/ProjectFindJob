@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Chúc mừng trúng tuyển</title>
+    <meta charset="UTF-8">
+</head>
+
+<body
+    style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0;">
+    <table style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; padding: 30px;">
+        <tr>
+            <td>
+                <h2 style="color: #28a745;">🎉 Chúc mừng bạn đã trúng tuyển!</h2>
+
+                <p style="font-size: 16px; color: #555;">
+                    Xin chào: <strong><span th:text="${name}"></span></strong>
+                </p>
+
+                <p style="font-size: 16px; color: #555;">
+                    Chúc mừng bạn đã vượt qua quá trình tuyển dụng và được chọn vào vị trí:
+                    <strong><span th:text="${value.job}"></span></strong>,
+                    tại công ty:
+                    <strong><span th:text="${value.company}"></span></strong>.
+                </p>
+
+                <p style="font-size: 16px; color: #555;">
+                    Hãy liên lạc lại với bộ phận tuyển dụng của công ty để xác nhận
+                </p>
+
+                <div style="margin: 20px 0; border-top: 1px solid #ddd;"></div>
+
+                <p style="font-size: 16px; color: #555;">
+                    Bộ phận tuyển dụng sẽ sớm liên hệ với bạn để hướng dẫn các bước tiếp theo.
+                    Vui lòng chuẩn bị các giấy tờ cần thiết và theo dõi email để cập nhật thông tin mới nhất.
+                </p>
+
+                <p style="font-size: 16px; color: #555;">Một lần nữa, xin chúc mừng bạn!</p>
+                <p style="font-size: 16px; color: #555;">Trân trọng,</p>
+                <p style="font-size: 16px; color: #555;">
+                    <strong>Bộ phận Tuyển dụng - <span th:text="${value.company}"></span></strong>
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

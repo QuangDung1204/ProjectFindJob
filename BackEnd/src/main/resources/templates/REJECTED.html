@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Thông báo từ chối hồ sơ</title>
+    <meta charset="UTF-8">
+</head>
+
+<body
+    style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0;">
+    <table style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; padding: 30px;">
+        <tr>
+            <td>
+                <h2 style="color: #dc3545;">😞 Rất tiếc, hồ sơ của bạn chưa được chọn</h2>
+
+                <p style="font-size: 16px; color: #555;">
+                    Xin chào: <strong><span th:text="${name}"></span></strong>
+                </p>
+
+                <p style="font-size: 16px; color: #555;">
+                    Cảm ơn bạn đã quan tâm và nộp hồ sơ ứng tuyển cho vị trí:
+                    <strong><span th:text="${value.job}"></span></strong>
+                    tại công ty:
+                    <strong><span th:text="${value.company}"></span></strong>.
+                </p>
+
+                <p style="font-size: 16px; color: #555;">
+                    Sau quá trình xem xét kỹ lưỡng, chúng tôi rất tiếc phải thông báo rằng hồ sơ của bạn chưa đáp ứng đủ
+                    các tiêu chí tuyển dụng cho vị trí này.
+                </p>
+
+                <div style="margin: 20px 0; border-top: 1px solid #ddd;"></div>
+
+                <p style="font-size: 16px; color: #555;">
+                    Tuy nhiên, chúng tôi đánh giá cao những nỗ lực và tiềm năng của bạn. Rất mong được hợp tác cùng bạn
+                    trong các cơ hội tuyển dụng tiếp theo.
+                </p>
+
+                <p style="font-size: 16px; color: #555;">Chúc bạn luôn thành công trong con đường sự nghiệp phía trước!
+                </p>
+                <p style="font-size: 16px; color: #555;">Trân trọng,</p>
+                <p style="font-size: 16px; color: #555;">
+                    <strong>Bộ phận Tuyển dụng - <span th:text="${value.company}"></span></strong>
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

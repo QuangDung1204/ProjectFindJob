@@ -75,7 +75,7 @@ const ModalUser = (props: IProps) => {
 
             const res = await callUpdateUser(user);
             if (res.data) {
-                message.success("Cập nhật user thành công");
+                message.success("Cập nhật người dùng thành công");
                 handleReset();
                 reloadTable();
             } else {
@@ -101,7 +101,7 @@ const ModalUser = (props: IProps) => {
             }
             const res = await callCreateUser(user);
             if (res.data) {
-                message.success("Thêm mới user thành công");
+                message.success("Thêm mới người dùng thành công");
                 handleReset();
                 reloadTable();
             } else {
@@ -153,7 +153,7 @@ const ModalUser = (props: IProps) => {
     return (
         <>
             <ModalForm
-                title={<>{dataInit?.id ? "Cập nhật User" : "Tạo mới User"}</>}
+                title={<>{dataInit?.id ? "Cập nhật người dùng" : "Tạo mới người dùng"}</>}
                 open={openModal}
                 modalProps={{
                     onCancel: () => { handleReset() },
@@ -254,7 +254,7 @@ const ModalUser = (props: IProps) => {
                         <ProForm.Item
                             name="company"
                             label="Thuộc Công Ty"
-                            rules={[{ required: true, message: 'Vui lòng chọn company!' }]}
+                            rules={[{ required: true, message: 'Vui lòng chọn công ty!' }]}
                         >
                             <DebounceSelect
                                 allowClear

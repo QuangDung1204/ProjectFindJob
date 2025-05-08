@@ -23,7 +23,7 @@ const ViewDetailResume = (props: IProps) => {
         const status = form.getFieldValue('status');
         const res = await callUpdateResumeStatus(dataInit?.id, status)
         if (res.data) {
-            message.success("Update Resume status thành công!");
+            message.success("Cập nhật  trạng thái CV thành công!");
             setDataInit(null);
             onClose(false);
             reloadTable();
@@ -47,7 +47,7 @@ const ViewDetailResume = (props: IProps) => {
     return (
         <>
             <Drawer
-                title="Thông Tin Resume"
+                title="Thông Tin CV"
                 placement="right"
                 onClose={() => { onClose(false); setDataInit(null) }}
                 open={open}
@@ -76,10 +76,10 @@ const ViewDetailResume = (props: IProps) => {
                                     style={{ width: "100%" }}
                                     defaultValue={dataInit?.status}
                                 >
-                                    <Option value="PENDING">PENDING</Option>
-                                    <Option value="REVIEWING">REVIEWING</Option>
-                                    <Option value="APPROVED">APPROVED</Option>
-                                    <Option value="REJECTED">REJECTED</Option>
+                                    <Option value="PENDING">Đang chờ xử lý</Option>
+                                    <Option value="REVIEWING">Đang đánh giá</Option>
+                                    <Option value="APPROVED">Đã phê duyệt</Option>
+                                    <Option value="REJECTED">Bị từ chối</Option>
                                 </Select>
                             </Form.Item>
                         </Form>
